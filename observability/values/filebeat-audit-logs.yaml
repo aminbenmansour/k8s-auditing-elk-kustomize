@@ -5,7 +5,7 @@ filebeatConfig:
     # Collect Kubernetes audit logs
     - type: log
       paths:
-        - /var/log/audit.log
+        - /var/log/kubernetes/audit/*.log
       fields:
         logtype: audit
         component: kube-apiserver
