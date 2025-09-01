@@ -35,8 +35,8 @@ helm install elasticsearch elastic/elasticsearch \
 	--version $VERSION \
 	--namespace $NAMESPACE \
 	--create-namespace \
-	--wait
-	--timeout=15m
+	--wait \
+	--timeout=15m \
 	--replace \
 	-f values/elasticsearch.yaml
 
