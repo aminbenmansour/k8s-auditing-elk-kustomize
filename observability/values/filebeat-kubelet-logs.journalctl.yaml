@@ -1,0 +1,54 @@
+# Filebeat for kubelet logs (runs on all nodes)
+nameOverride: "filebeat-kubelet"
+filebeatConfig:
+  filebeat.yml: |
+    filebeat.inputs:
+    # Collect kubelet logs from systemd journal
+    - type: journald
+      id: kubelet-logs
+      include_matches:
+        - _SYSTEMD_UNIT=kubelet.service
+      fields:
+        logtype: kubelet
+        service: kubelet
+      fields_under_root: true
+
+    output.logstash:
+      hosts: ["logstash-logstash:5044"]
+    
+    logging.level: info
+
+# Mount systemd journal for kubelet logs
+daemonset:
+  extraInitContainers:
+    - name: install-journalctl
+      image: alpine:latest
+      command:
+        - sh
+        - -c
+        - |
+          apk add --no-cache systemd
+          cp /usr/bin/journalctl /shared/journalctl
+      volumeMounts:
+        - name: shared-bin
+          mountPath: /shared
+  extraVolumes:
+    - name: shared-bin
+      emptyDir: {}
+    - name: systemd-journal
+      hostPath:
+        path: /var/log/journal
+    - name: machine-id
+      hostPath:
+        path: /etc/machine-id
+        type: File
+  extraVolumeMounts:
+    - name: shared-bin
+      mountPath: /usr/local/bin/journalctl
+      subPath: journalctl
+    - name: systemd-journal
+      mountPath: /var/log/journal
+      readOnly: true
+    - name: machine-id
+      mountPath: /etc/machine-id
+      readOnly: true
