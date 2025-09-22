@@ -15,6 +15,12 @@ logstashPipeline:
 
         ssl => true
         cacert => "/usr/share/logstash/config/http_ca.crt"
+
+        # Route to different indices based on logtype
+        index => "filebeat-%{[logtype]}-default"
+
+        # This config is more useful for production
+        # index => "filebeat-%{[logtype]}-%{+YYYY.MM.dd}"
       }
     }
 
