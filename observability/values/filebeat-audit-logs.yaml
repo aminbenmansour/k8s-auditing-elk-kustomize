@@ -6,13 +6,36 @@ filebeatConfig:
     - type: log
       paths:
         - /var/log/kubernetes/audit/*.log
+
+      # Keep JSON structured (don't flatten)
+      json.keys_under_root: false
+      json.add_error_key: true
+
+      # Add fields at root level
+      fields_under_root: true
       fields:
         logtype: audit
         component: kube-apiserver
-      fields_under_root: true
-      json.keys_under_root: true
-      json.add_error_key: true
+        data_stream:
+          type: logs
+          dataset: kubernetes.audit_logs
+          namespace: default
 
+      processors:
+      # Move the entire JSON object under kubernetes.audit
+      - script:
+          lang: javascript
+          source: >
+            function process(event) {
+              // Get the parsed JSON
+              var auditData = event.Get("json");
+              if (auditData) {
+                // Set kubernetes.audit with the audit data
+                event.Put("kubernetes.audit", auditData);
+                // Remove the original json field
+                event.Delete("json");
+              }
+            }
     # Output to Logstash
     output.logstash:
       hosts: ["logstash-logstash:5044"]
