@@ -8,8 +8,10 @@ This repo also sets up a log aggregation and visualization solution on the ELK s
 * Pod (Workloads) logs.
 
 # Usage
-**Pre-requisites:** Change *apiserver-patch/variables.yaml* to your relevent values for your cluster.
 1. Enable audit logging for all control planes.
+
+**Pre-requisites:** Change *apiserver-patch/variables.yaml* to your relevent values for your cluster.
+
   * **generate-audit.sh**: generate new *kube-apiserver.yaml* for all control planes and places them under `apiserver-patch/manifests`.
   * **deploy-audit.sh**: updates control plane nodes with audit configuration.
 ```bash
@@ -17,6 +19,7 @@ cd apiserver-patch/scripts && ./generate-audit.sh && ./deploy-audit.sh && cd ../
 ```
 
 2. Enable ELK stack
+
 **Pre-requisites:** The machine that executes these scripts should have access to the Kubernetes cluster (`KUBECONFIG`) and have `helm` installed!
 ```bash
 cd observability && ./helm-elk-stack.sh && cd ..
